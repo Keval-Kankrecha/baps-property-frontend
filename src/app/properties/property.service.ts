@@ -3,9 +3,9 @@ import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { AttachedFile, Property, PropertyFilters, PropertyPage } from './property.model';
 
-export const API_URL = 'http://localhost:3000/api/properties';
-export const UPLOAD_URL = 'http://localhost:3000/api/uploads';
-export const FILES_URL = 'http://localhost:3000/files';
+export const API_URL = 'https://baps-property-backend.onrender.com/api/properties';
+export const UPLOAD_URL = 'https://baps-property-backend.onrender.com/api/uploads';
+export const FILES_URL = 'https://baps-property-backend.onrender.com/files';
 
 @Injectable({ providedIn: 'root' })
 export class PropertyService {
