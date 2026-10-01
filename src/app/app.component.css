@@ -1,0 +1,15 @@
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px;
+  background: var(--primary);
+  color: #fff;
+}
+.brand { color: #fff; font-weight: 700; font-size: 1.15rem; text-decoration: none; }
+nav { display: flex; gap: 12px; align-items: center; }
+nav a { color: #fff; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
+nav a.active:not(.btn) { background: rgba(255, 255, 255, 0.18); }
+nav .btn-primary { background: #fff; color: var(--primary); }
+.container { width: 100%; max-width: 2000px; margin: 0 auto; padding: 20px 24px 48px; }

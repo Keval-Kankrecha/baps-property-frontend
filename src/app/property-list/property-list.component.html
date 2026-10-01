@@ -1,0 +1,129 @@
+<ng-template #fileLinks let-files="files">
+  @if (files?.length) {
+    <div class="files">
+      @for (f of files; track f.fileName; let i = $index) {
+        <a class="file" [href]="fileUrl(f)" target="_blank" rel="noopener" [title]="f.originalName">
+          {{ f.mimeType === 'application/pdf' ? '📄' : '🖼️' }}{{ i + 1 }}
+        </a>
+      }
+    </div>
+  }
+</ng-template>
+
+<div class="head">
+  <h1>મિલકત યાદી <span class="muted">({{ total() }})</span></h1>
+</div>
+
+<div class="card toolbar">
+  <input class="search" [(ngModel)]="query.search" (ngModelChange)="onSearch()"
+         placeholder="શોધો: ગામ, સર્વે નં., આપનારનું નામ, આઈડી…" />
+  <select [(ngModel)]="query.comesUnder" (ngModelChange)="reload()">
+    <option value="">બધા મંદિર (અંતર્ગત)</option>
+    @for (c of comesUnderOptions; track c) { <option [value]="c">{{ c }}</option> }
+  </select>
+  <select [(ngModel)]="query.district" (ngModelChange)="reload()">
+    <option value="">બધા જીલ્લા</option>
+    @for (d of filters().districts; track d) { <option [value]="d">{{ d }}</option> }
+  </select>
+  <select [(ngModel)]="query.taluka" (ngModelChange)="reload()">
+    <option value="">બધા તાલુકા</option>
+    @for (t of filters().talukas; track t) { <option [value]="t">{{ t }}</option> }
+  </select>
+  <select [(ngModel)]="query.purpose" (ngModelChange)="reload()">
+    <option value="">બધા હેતુ</option>
+    @for (p of filters().purposes; track p) { <option [value]="p">{{ p }}</option> }
+  </select>
+  <select [(ngModel)]="query.isNA" (ngModelChange)="reload()">
+    <option value="">એન.એ. (બધા)</option>
+    <option value="yes">એન.એ. હા</option>
+    <option value="no">એન.એ. ના</option>
+  </select>
+  <button class="btn" (click)="clear()">સાફ કરો</button>
+</div>
+
+@if (error()) {
+  <div class="alert">{{ error() }}</div>
+}
+
+<div class="card table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>ક્રમ</th>
+        <th>આઈડી</th>
+        <th>અંતર્ગત</th>
+        <th>ગામ / તાલુકો / જીલ્લો</th>
+        <th>સર્વે/બ્લોક નં.</th>
+        <th>દ.નં. / તારીખ</th>
+        <th>આપનારનું નામ અને સરનામું</th>
+        <th>ક્ષેત્રફળ<br /><small>ચો.મી. / વાર</small></th>
+        <th>૭/૧૨</th>
+        <th>પ્રોપર્ટી કાર્ડ</th>
+        <th>આકારણી</th>
+        <th>ગામ નં. ૨</th>
+        <th>હેતુ</th>
+        <th>એન.એ.</th>
+        <th>એન.એ. ક્ષેત્રફળ<br /><small>ચો.મી. / વાર</small></th>
+        <th>રીમાર્કસ</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody>
+      @for (p of items(); track p._id) {
+        <tr>
+          <td>{{ p.serialNo }}</td>
+          <td>{{ p.propertyId }}</td>
+          <td>{{ p.comesUnder }}</td>
+          <td>{{ p.village }}@if (p.taluka) {<br /><small>{{ p.taluka }}</small>}@if (p.district) {<small>, {{ p.district }}</small>}</td>
+          <td class="wrap">{{ p.surveyDetails }}</td>
+          <td>
+            {{ p.deedNo }}@if (p.deedDate) {<br /><small>{{ p.deedDate | date: 'dd/MM/yyyy' }}</small>}
+            <ng-container *ngTemplateOutlet="fileLinks; context: { files: p.deedFiles }" />
+          </td>
+          <td class="wrap">{{ p.giverNameAddress }}</td>
+          <td class="num">
+            @if (p.areaSqm != null) {
+              {{ p.areaSqm | number: '1.0-2' }}<br /><small>{{ toVar(p.areaSqm) | number: '1.0-2' }} વાર</small>
+            }
+          </td>
+          <td><span class="pill" [class]="p.in712">{{ yesNo[p.in712] }}</span></td>
+          <td>
+            {{ p.propertyCard }}
+            <ng-container *ngTemplateOutlet="fileLinks; context: { files: p.propertyCardFiles }" />
+          </td>
+          <td>
+            {{ p.assessment }}
+            <ng-container *ngTemplateOutlet="fileLinks; context: { files: p.assessmentFiles }" />
+          </td>
+          <td>{{ p.villageForm2 }}</td>
+          <td>{{ p.purpose }}</td>
+          <td><span class="pill" [class]="p.isNA">{{ yesNo[p.isNA] }}</span></td>
+          <td class="num">
+            @if (p.naAreaSqm != null) {
+              {{ p.naAreaSqm | number: '1.0-2' }}<br /><small>{{ toVar(p.naAreaSqm) | number: '1.0-2' }} વાર</small>
+            }
+          </td>
+          <td class="wrap">{{ p.remarks }}</td>
+          <td class="row-actions">
+            <a class="btn btn-sm" [routerLink]="['/edit', p._id]">સુધારો</a>
+            <button class="btn btn-sm btn-danger" (click)="remove(p)">કાઢો</button>
+          </td>
+        </tr>
+      } @empty {
+        <tr>
+          <td colspan="17"class="empty">
+            @if (loading()) { લોડ થઈ રહ્યું છે… } @else { કોઈ મિલકત મળી નથી. <a routerLink="/new">નવી ઉમેરો</a> }
+          </td>
+        </tr>
+      }
+    </tbody>
+  </table>
+</div>
+
+@if (pages > 1) {
+  <div class="pager">
+    <button class="btn btn-sm" [disabled]="page <= 1" (click)="go(page - 1)">‹ પાછળ</button>
+    <span>પાનું {{ page }} / {{ pages }}</span>
+    <button class="btn btn-sm" [disabled]="page >= pages" (click)="go(page + 1)">આગળ ›</button>
+  </div>
+}

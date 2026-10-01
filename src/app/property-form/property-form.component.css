@@ -1,0 +1,39 @@
+form { display: flex; flex-direction: column; gap: 16px; }
+h2 { font-size: 1.05rem; margin: 0 0 14px; color: var(--primary); }
+h2 span { font-size: 0.8rem; color: var(--muted); font-weight: 400; margin-left: 6px; }
+.section-head { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px 20px; margin-bottom: 14px; }
+.section-head h2 { margin: 0; }
+.comes-under { flex-direction: row; align-items: center; gap: 10px; min-width: 300px; }
+.comes-under .lbl { white-space: nowrap; }
+.comes-under select { flex: 1; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px 24px; }
+.wide { grid-column: 1 / -1; }
+label, .field { display: flex; flex-direction: column; gap: 5px; }
+.lbl { font-weight: 600; font-size: 0.92rem; }
+.lbl small { font-weight: 400; color: var(--muted); margin-left: 4px; }
+.toggle { display: flex; gap: 18px; padding: 8px 0; }
+.toggle label { flex-direction: row; align-items: center; gap: 6px; cursor: pointer; }
+.toggle input { width: auto; }
+.err input, .err textarea { border-color: var(--danger); }
+em { color: var(--danger); font-size: 0.82rem; font-style: normal; }
+.pair { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.pair small { color: var(--muted); font-size: 0.78rem; }
+input:disabled { background: #f0eeea; color: var(--text); font-weight: 600; cursor: not-allowed; }
+.file-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  padding: 8px 12px; border: 1px dashed var(--primary); border-radius: 6px;
+  color: var(--primary); cursor: pointer; font-size: 0.88rem;
+}
+.file-btn:hover { background: #fdf3f2; }
+.file-btn.busy { opacity: 0.6; cursor: progress; }
+.file-btn input { display: none; }
+.file-count { color: var(--muted); font-size: 0.78rem; }
+.file-chip {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  padding: 6px 10px; border: 1px solid var(--border); border-radius: 6px; background: #faf8f5;
+}
+.file-chip a { color: var(--primary); text-decoration: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.88rem; }
+.file-chip a:hover { text-decoration: underline; }
+.file-chip .x { border: 0; background: none; color: var(--danger); cursor: pointer; font-size: 1rem; }
+.success { background: #e8f5e9; color: #2e7d32; }
+.actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }

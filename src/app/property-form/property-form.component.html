@@ -1,0 +1,192 @@
+<h1>{{ id() ? 'મિલકત સુધારો' : 'નવી મિલકત ઉમેરો' }}</h1>
+
+@if (error()) {
+  <div class="alert">{{ error() }}</div>
+}
+@if (saved()) {
+  <div class="alert success">{{ saved() }}</div>
+}
+
+<ng-template #filePicker let-field="field">
+  @let files = filesOf(field);
+  @for (f of files; track f.fileName; let i = $index) {
+    <div class="file-chip">
+      <a [href]="fileUrl(f)" target="_blank" rel="noopener" [title]="f.originalName">
+        {{ f.mimeType === 'application/pdf' ? '📄' : '🖼️' }} {{ f.originalName }}
+      </a>
+      <button type="button" class="x" (click)="removeFile(field, i)" aria-label="ફાઇલ કાઢો">✕</button>
+    </div>
+  }
+  @if (files.length < maxFiles) {
+    <label class="file-btn" [class.busy]="uploading() === field">
+      <input type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.webp,application/pdf,image/*"
+             [disabled]="uploading() !== null" (change)="onFile(field, $event)" />
+      {{ uploading() === field ? 'અપલોડ થઈ રહ્યું છે…' : '📎 ફાઇલ ઉમેરો (PDF / ફોટો)' }}
+    </label>
+  }
+  <small class="file-count">{{ files.length }} / {{ maxFiles }} ફાઇલ</small>
+</ng-template>
+
+@if (loading()) {
+  <p class="muted">લોડ થઈ રહ્યું છે…</p>
+} @else {
+  <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+    <section class="card">
+      <h2>મૂળ વિગત <span>Basic details</span></h2>
+      <div class="grid">
+        <label>
+          <span class="lbl">ક્રમ <small>Serial no.</small></span>
+          <input type="number" formControlName="serialNo" placeholder="આપોઆપ (auto)" />
+        </label>
+        <label>
+          <span class="lbl">આઈડી <small>ID</small></span>
+          <input formControlName="propertyId" />
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="section-head">
+        <h2>સ્થળ <span>Location</span></h2>
+        <label class="comes-under">
+          <span class="lbl">અંતર્ગત <small>Comes under</small></span>
+          <select formControlName="comesUnder">
+            <option value="">— પસંદ કરો —</option>
+            @for (o of comesUnderOptions; track o) { <option [value]="o">{{ o }}</option> }
+            @if (form.controls.comesUnder.value && !comesUnderOptions.includes(form.controls.comesUnder.value)) {
+              <option [value]="form.controls.comesUnder.value">{{ form.controls.comesUnder.value }}</option>
+            }
+          </select>
+        </label>
+      </div>
+      <div class="grid">
+        <label [class.err]="invalid('village')">
+          <span class="lbl">ગામનું નામ * <small>Village</small></span>
+          <input formControlName="village" />
+          @if (invalid('village')) { <em>ગામનું નામ જરૂરી છે</em> }
+        </label>
+        <label>
+          <span class="lbl">તાલુકો <small>Taluka</small></span>
+          <input formControlName="taluka" />
+        </label>
+        <label>
+          <span class="lbl">જીલ્લો <small>District</small></span>
+          <input formControlName="district" />
+        </label>
+        <label class="wide" [class.err]="invalid('surveyDetails')">
+          <span class="lbl">સર્વે/બ્લોક નંબરની વિગત * <small>Survey / Block no. details</small></span>
+          <textarea rows="2" formControlName="surveyDetails"></textarea>
+          @if (invalid('surveyDetails')) { <em>સર્વે/બ્લોક નંબર જરૂરી છે</em> }
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>દસ્તાવેજ <span>Deed</span></h2>
+      <div class="grid">
+        <div class="field">
+          <span class="lbl">દ.નં. / ID <small>Deed no. / ID</small></span>
+          <input formControlName="deedNo" placeholder="દસ્તાવેજ નંબર / ID" />
+          <ng-container *ngTemplateOutlet="filePicker; context: { field: 'deedFiles' }" />
+        </div>
+        <label>
+          <span class="lbl">તારીખ <small>Deed date</small></span>
+          <input type="date" formControlName="deedDate" />
+        </label>
+        <label class="wide">
+          <span class="lbl">આપનારનું નામ અને સરનામું <small>Giver name &amp; address</small></span>
+          <textarea rows="3" formControlName="giverNameAddress"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>મિલકત અને રેકોર્ડ <span>Property &amp; records</span></h2>
+      <div class="grid">
+        <div class="field" [class.err]="invalid('areaSqm')">
+          <span class="lbl">મિલકતનું ક્ષેત્રફળ <small>Area</small></span>
+          <div class="pair">
+            <label>
+              <input type="number" step="0.01" min="0" formControlName="areaSqm" placeholder="ચો.મી." />
+              <small>ચો.મી. (sq. m.)</small>
+            </label>
+            <label>
+              <input type="text" disabled [value]="toVar(form.controls.areaSqm.value) ?? ''" placeholder="વાર" />
+              <small>વાર (auto)</small>
+            </label>
+          </div>
+        </div>
+        <div class="field">
+          <span class="lbl">૭/૧૨ માં નામ? <small>Name on 7/12</small></span>
+          <div class="toggle">
+            <label><input type="radio" formControlName="in712" value="yes" /> હા</label>
+            <label><input type="radio" formControlName="in712" value="no" /> ના</label>
+          </div>
+        </div>
+        <div class="field">
+          <span class="lbl">પ્રોપર્ટી કાર્ડ <small>Property card</small></span>
+          <input formControlName="propertyCard" placeholder="નંબર / વિગત" />
+          <ng-container *ngTemplateOutlet="filePicker; context: { field: 'propertyCardFiles' }" />
+        </div>
+        <div class="field">
+          <span class="lbl">આકારણી <small>Assessment</small></span>
+          <input formControlName="assessment" placeholder="નંબર / વિગત" />
+          <ng-container *ngTemplateOutlet="filePicker; context: { field: 'assessmentFiles' }" />
+        </div>
+        <label>
+          <span class="lbl">ગામ નં. ૨ <small>Village Form 2</small></span>
+          <input formControlName="villageForm2" />
+        </label>
+        <label>
+          <span class="lbl">વપરાશનો હેતુ <small>Purpose of use</small></span>
+          <input formControlName="purpose" list="purposeList" placeholder="મંદિર, સંત આશ્રમ, પ્રેમવતી, હૉલ…" />
+          <datalist id="purposeList">
+            @for (p of purposeOptions; track p) { <option [value]="p"></option> }
+          </datalist>
+        </label>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>એન.એ. <span>Non-agricultural</span></h2>
+      <div class="grid">
+        <div class="field">
+          <span class="lbl">એન.એ. થયેલ છે? <small>Is NA?</small></span>
+          <div class="toggle">
+            <label><input type="radio" formControlName="isNA" value="yes" /> હા</label>
+            <label><input type="radio" formControlName="isNA" value="no" /> ના</label>
+          </div>
+        </div>
+        @if (form.controls.isNA.value === 'yes') {
+          <div class="field">
+            <span class="lbl">એન.એ. જમીનનું ક્ષેત્રફળ <small>NA land area</small></span>
+            <div class="pair">
+              <label>
+                <input type="number" step="0.01" min="0" formControlName="naAreaSqm" placeholder="ચો.મી." />
+                <small>ચો.મી. (sq. m.)</small>
+              </label>
+              <label>
+                <input type="text" disabled [value]="toVar(form.controls.naAreaSqm.value) ?? ''" placeholder="વાર" />
+                <small>વાર (auto)</small>
+              </label>
+            </div>
+          </div>
+        }
+        <label class="wide">
+          <span class="lbl">રીમાર્કસ <small>Remarks</small></span>
+          <textarea rows="3" formControlName="remarks"></textarea>
+        </label>
+      </div>
+    </section>
+
+    <div class="actions">
+      <a routerLink="/" class="btn">રદ કરો</a>
+      @if (!id()) {
+        <button type="button" class="btn" [disabled]="saving()" (click)="save(true)">સેવ કરો અને નવી ઉમેરો</button>
+      }
+      <button type="submit" class="btn btn-primary" [disabled]="saving()">
+        {{ saving() ? 'સેવ થઈ રહ્યું છે…' : 'સેવ કરો' }}
+      </button>
+    </div>
+  </form>
+}
